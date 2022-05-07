@@ -24,7 +24,7 @@ const getContactById = async (contactId) => {
     (contact) => contact.id === contactId
   );
 
-  if (foundContact === undefined) {
+  if (foundContact) {
     return {
       status: "error",
       code: 404,
@@ -110,7 +110,7 @@ const updateContact = async (contactId, body) => {
   if (foundContacts.find(({ id }) => id === contactId) !== undefined) {
     const { name, email, phone } = body;
 
-    if (Object.entries(body).length === 0) {
+    if (!Object.entries(body).length) {
       return {
         status: "error",
         code: 400,
