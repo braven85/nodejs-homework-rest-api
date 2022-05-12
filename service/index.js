@@ -1,19 +1,12 @@
-const {
-  Types: { ObjectId },
-} = require("mongoose");
+const mongoose = require("mongoose");
 const Contact = require("./schemas/contact");
 
 const getAllContacts = () => Contact.find({}).lean();
 
 const getSingleContact = (contactId) => {
-  let objectIdContactId;
-  try {
-    // map to ObjectId
-    objectIdContactId = ObjectId(contactId);
-  } catch (err) {
-    return null;
-  }
-  return Contact.findOne({ _id: objectIdContactId }).lean();
+  return mongoose.isValidObjectId(contactId)
+    ? Contact.findOne({ _id: contactId }).lean()
+    : null;
 };
 
 const createContact = ({ name, email, phone }) =>
