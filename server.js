@@ -8,6 +8,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+require("./config/passport");
+
 const apiRouter = require("./api");
 app.use("/api", apiRouter);
 

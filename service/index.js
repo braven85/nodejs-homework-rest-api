@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Contact = require("./schemas/contact");
+const User = require("./schemas/user");
 
 const getAllContacts = () => Contact.find({}).lean();
 
@@ -25,10 +26,13 @@ const updateContact = (contactId, contactToUpdate) =>
     }
   );
 
+const updateUserJWT = (_id, token) => User.findByIdAndUpdate(_id, { token });
+
 module.exports = {
   getAllContacts,
   getSingleContact,
   createContact,
   removeContact,
   updateContact,
+  updateUserJWT,
 };
