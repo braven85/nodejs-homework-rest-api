@@ -28,6 +28,11 @@ const updateContact = (contactId, contactToUpdate) =>
 
 const updateUserJWT = (_id, token) => User.findByIdAndUpdate(_id, { token });
 
+const updateUserAvatar = (_id, avatarURL) =>
+  User.findByIdAndUpdate(_id, { avatarURL });
+
+const removeUser = (userId) => User.deleteOne({ _id: userId });
+
 module.exports = {
   getAllContacts,
   getSingleContact,
@@ -35,4 +40,6 @@ module.exports = {
   removeContact,
   updateContact,
   updateUserJWT,
+  updateUserAvatar,
+  removeUser,
 };
