@@ -8,30 +8,31 @@ const registerUser = async (req, res, next) => {
   const { email, password } = req.body;
   const { error } = userSchema.validate({ email, password });
 
-  if (!error) {
-    const user = await User.findOne({ email }, { _id: 1 }).lean(); // "{ _id: 1 }" is a micro-optimization - returns only id - good practice
-    if (user) {
-      return res.status(409).json({ message: "User already exists" });
-    }
-
-    try {
-      const newUser = new User({ email });
-      await newUser.setPassword(password);
-      await newUser.save();
-      res.status(201).json({
-        message: "User created",
-        data: {
-          user: {
-            email,
-            subscription: "starter",
-          },
-        },
-      });
-    } catch (e) {
-      next(e);
-    }
-  } else {
+  if (error) {
     return res.status(400).json({ message: error.message });
+  }
+
+  const user = await User.findOne({ email }, { _id: 1 }).lean();
+
+  if (user) {
+    return res.status(409).json({ message: "User already exists" });
+  }
+
+  try {
+    const newUser = new User({ email });
+    await newUser.setPassword(password);
+    await newUser.save();
+    res.status(201).json({
+      message: "User created",
+      data: {
+        user: {
+          email,
+          subscription: "starter",
+        },
+      },
+    });
+  } catch (e) {
+    next(e);
   }
 };
 
