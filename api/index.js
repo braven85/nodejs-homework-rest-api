@@ -22,13 +22,22 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.get("/contacts", contactsController.get);
-router.get("/contacts/:contactId", contactsController.getOne);
-router.post("/contacts", contactsController.addContact);
-router.delete("/contacts/:contactId", contactsController.removeContact);
-router.put("/contacts/:contactId", contactsController.updateContact);
+router.get("/contacts", authMiddleware, contactsController.getAll);
+router.get("/contacts/:contactId", authMiddleware, contactsController.getOne);
+router.post("/contacts", authMiddleware, contactsController.addContact);
+router.delete(
+  "/contacts/:contactId",
+  authMiddleware,
+  contactsController.removeContact
+);
+router.put(
+  "/contacts/:contactId",
+  authMiddleware,
+  contactsController.updateContact
+);
 router.patch(
   "/contacts/:contactId/favorite",
+  authMiddleware,
   contactsController.patchIsFavorite
 );
 
