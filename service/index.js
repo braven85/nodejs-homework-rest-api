@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Contact = require("./schemas/contact");
 const User = require("./schemas/user");
 
-const getAllContacts = () => Contact.find({}).lean();
+const getAllContacts = (owner) => Contact.find({ owner }).lean();
 
 const getSingleContact = (contactId) => {
   return mongoose.isValidObjectId(contactId)
@@ -10,8 +10,8 @@ const getSingleContact = (contactId) => {
     : null;
 };
 
-const createContact = ({ name, email, phone }) =>
-  Contact.create({ name, email, phone });
+const createContact = ({ name, email, phone, _id }) =>
+  Contact.create({ name, email, phone, owner: _id });
 
 const removeContact = (contactId) => Contact.deleteOne({ _id: contactId });
 
@@ -26,6 +26,8 @@ const updateContact = (contactId, contactToUpdate) =>
     }
   );
 
+const getFavContacts = (favorite, owner) => Contact.find({ favorite, owner });
+
 const updateUserJWT = (_id, token) => User.findByIdAndUpdate(_id, { token });
 
 module.exports = {
@@ -34,5 +36,6 @@ module.exports = {
   createContact,
   removeContact,
   updateContact,
+  getFavContacts,
   updateUserJWT,
 };
