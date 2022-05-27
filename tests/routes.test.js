@@ -85,6 +85,42 @@ describe("test routes".yellow, () => {
     }
   );
 
+  it(
+    "should not register a user that already exists and return status code 409"
+      .blue,
+    async () => {
+      const res = await request(app)
+        .post("/api/users/signup")
+        .send({
+          email: firstUserEmail,
+          password: userPassword,
+        })
+        .set("Content-Type", "application/json")
+        .set("Accept", "application/json");
+
+      expect(res.statusCode).toBe(409);
+    }
+  );
+
+  it(
+    "should not register a user that already exists and return a message 'User already exists'"
+      .blue,
+    async () => {
+      const res = await request(app)
+        .post("/api/users/signup")
+        .send({
+          email: secondUserEmail,
+          password: userPassword,
+        })
+        .set("Content-Type", "application/json")
+        .set("Accept", "application/json");
+
+      console.log(res.body);
+
+      expect(res.body.message).toBe("User already exists");
+    }
+  );
+
   it("should log in a user and return status code 200".blue, async () => {
     const res = await request(app)
       .post("/api/users/login")
