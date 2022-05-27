@@ -11,6 +11,11 @@ require("dotenv").config();
 const apiRouter = require("../api");
 app.use("/api", apiRouter);
 
+const firstUserEmail = "dummyUser1@gmail.com";
+const secondUserEmail = "dummyUser2@gmail.com";
+const thirdUserEmail = "dummyUser3@gmail.com";
+const userPassword = "dummyUser";
+
 describe("test routes".yellow, () => {
   beforeAll(async () => {
     await mongoose.connect(process.env.DB_URI, {
@@ -30,12 +35,10 @@ describe("test routes".yellow, () => {
   );
 
   it("should register a new user and return status code 201".blue, async () => {
-    const userEmail = "dummyUser1@gmail.com";
-    const userPassword = "dummyUser";
     const res = await request(app)
       .post("/api/users/signup")
       .send({
-        email: userEmail,
+        email: firstUserEmail,
         password: userPassword,
       })
       .set("Content-Type", "application/json")
@@ -47,12 +50,10 @@ describe("test routes".yellow, () => {
   it(
     "should register a new user and return a message 'User created'".blue,
     async () => {
-      const userEmail = "dummyUser2@gmail.com";
-      const userPassword = "dummyUser";
       const res = await request(app)
         .post("/api/users/signup")
         .send({
-          email: userEmail,
+          email: secondUserEmail,
           password: userPassword,
         })
         .set("Content-Type", "application/json")
@@ -66,12 +67,10 @@ describe("test routes".yellow, () => {
     "should register a new user and return 'user' object with 2 fields 'email' and 'subscription' both of type 'String'"
       .blue,
     async () => {
-      const userEmail = "dummyUser3@gmail.com";
-      const userPassword = "dummyUser";
       const res = await request(app)
         .post("/api/users/signup")
         .send({
-          email: userEmail,
+          email: thirdUserEmail,
           password: userPassword,
         })
         .set("Content-Type", "application/json")
@@ -87,12 +86,10 @@ describe("test routes".yellow, () => {
   );
 
   it("should log in a user and return status code 200".blue, async () => {
-    const userEmail = "dummyUser1@gmail.com";
-    const userPassword = "dummyUser";
     const res = await request(app)
       .post("/api/users/login")
       .send({
-        email: userEmail,
+        email: firstUserEmail,
         password: userPassword,
       })
       .set("Content-Type", "application/json")
@@ -104,12 +101,10 @@ describe("test routes".yellow, () => {
   it(
     "should log in a user and return a defined and not empty token".blue,
     async () => {
-      const userEmail = "dummyUser2@gmail.com";
-      const userPassword = "dummyUser";
       const res = await request(app)
         .post("/api/users/login")
         .send({
-          email: userEmail,
+          email: secondUserEmail,
           password: userPassword,
         })
         .set("Content-Type", "application/json")
@@ -124,28 +119,24 @@ describe("test routes".yellow, () => {
     "should log in a user and check if returned email matches the provided one"
       .blue,
     async () => {
-      const userEmail = "dummyUser3@gmail.com";
-      const userPassword = "dummyUser";
       const res = await request(app)
         .post("/api/users/login")
         .send({
-          email: userEmail,
+          email: thirdUserEmail,
           password: userPassword,
         })
         .set("Content-Type", "application/json")
         .set("Accept", "application/json");
 
-      expect(res.body.user.email).toEqual(userEmail);
+      expect(res.body.user.email).toEqual(thirdUserEmail);
     }
   );
 
   it("should delete a user and return status code 204".blue, async () => {
-    const userEmail = "dummyUser1@gmail.com";
-    const userPassword = "dummyUser";
     const loginUser = await request(app)
       .post("/api/users/login")
       .send({
-        email: userEmail,
+        email: firstUserEmail,
         password: userPassword,
       })
       .set("Content-Type", "application/json")
@@ -159,12 +150,10 @@ describe("test routes".yellow, () => {
   });
 
   it("should delete a user and return status code 204".blue, async () => {
-    const userEmail = "dummyUser2@gmail.com";
-    const userPassword = "dummyUser";
     const loginUser = await request(app)
       .post("/api/users/login")
       .send({
-        email: userEmail,
+        email: secondUserEmail,
         password: userPassword,
       })
       .set("Content-Type", "application/json")
@@ -178,12 +167,10 @@ describe("test routes".yellow, () => {
   });
 
   it("should delete a user and return status code 204".blue, async () => {
-    const userEmail = "dummyUser3@gmail.com";
-    const userPassword = "dummyUser";
     const loginUser = await request(app)
       .post("/api/users/login")
       .send({
-        email: userEmail,
+        email: thirdUserEmail,
         password: userPassword,
       })
       .set("Content-Type", "application/json")
