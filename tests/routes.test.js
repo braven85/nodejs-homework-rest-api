@@ -11,7 +11,7 @@ require("dotenv").config();
 const apiRouter = require("../api");
 app.use("/api", apiRouter);
 
-describe("test routes", () => {
+describe("test routes".yellow, () => {
   beforeAll(async () => {
     await mongoose.connect(process.env.DB_URI, {
       useNewUrlParser: true,
@@ -29,21 +29,54 @@ describe("test routes", () => {
     }
   );
 
+  it("should register a new user and return status code 201".blue, async () => {
+    const userEmail = "dummyUser1@gmail.com";
+    const userPassword = "dummyUser";
+    const res = await request(app)
+      .post("/api/users/signup")
+      .send({
+        email: userEmail,
+        password: userPassword,
+      })
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json");
+
+    expect(res.statusCode).toBe(201);
+  });
+
   it(
-    "should register a new user, return status code 201 with a message 'User created' and return 'user' object with 2 fields 'email' and 'subscription' both of type 'String'"
-      .blue,
+    "should register a new user and return a message 'User created'".blue,
     async () => {
+      const userEmail = "dummyUser2@gmail.com";
+      const userPassword = "dummyUser";
       const res = await request(app)
         .post("/api/users/signup")
         .send({
-          email: "dummyUser@gmail.com",
-          password: "dummyUser",
+          email: userEmail,
+          password: userPassword,
         })
         .set("Content-Type", "application/json")
         .set("Accept", "application/json");
 
-      expect(res.statusCode).toBe(201);
       expect(res.body.message).toBe("User created");
+    }
+  );
+
+  it(
+    "should register a new user and return 'user' object with 2 fields 'email' and 'subscription' both of type 'String'"
+      .blue,
+    async () => {
+      const userEmail = "dummyUser3@gmail.com";
+      const userPassword = "dummyUser";
+      const res = await request(app)
+        .post("/api/users/signup")
+        .send({
+          email: userEmail,
+          password: userPassword,
+        })
+        .set("Content-Type", "application/json")
+        .set("Accept", "application/json");
+
       expect(res.body.user).toStrictEqual(
         expect.objectContaining({
           email: expect.any(String),
@@ -53,33 +86,105 @@ describe("test routes", () => {
     }
   );
 
+  it("should log in a user and return status code 200".blue, async () => {
+    const userEmail = "dummyUser1@gmail.com";
+    const userPassword = "dummyUser";
+    const res = await request(app)
+      .post("/api/users/login")
+      .send({
+        email: userEmail,
+        password: userPassword,
+      })
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json");
+
+    expect(res.statusCode).toBe(200);
+  });
+
   it(
-    "should log in a user, return status code 200, defined and not empty token and returned email should match the provided one"
-      .blue,
+    "should log in a user and return a defined and not empty token".blue,
     async () => {
-      const userEmail = "dummyUser@gmail.com";
+      const userEmail = "dummyUser2@gmail.com";
+      const userPassword = "dummyUser";
       const res = await request(app)
         .post("/api/users/login")
         .send({
           email: userEmail,
-          password: "dummyUser",
+          password: userPassword,
         })
         .set("Content-Type", "application/json")
         .set("Accept", "application/json");
 
-      expect(res.statusCode).toBe(200);
       expect(res.body.token).toBeDefined();
       expect(res.body.token).not.toBeNull();
+    }
+  );
+
+  it(
+    "should log in a user and check if returned email matches the provided one"
+      .blue,
+    async () => {
+      const userEmail = "dummyUser3@gmail.com";
+      const userPassword = "dummyUser";
+      const res = await request(app)
+        .post("/api/users/login")
+        .send({
+          email: userEmail,
+          password: userPassword,
+        })
+        .set("Content-Type", "application/json")
+        .set("Accept", "application/json");
+
       expect(res.body.user.email).toEqual(userEmail);
     }
   );
 
   it("should delete a user and return status code 204".blue, async () => {
+    const userEmail = "dummyUser1@gmail.com";
+    const userPassword = "dummyUser";
     const loginUser = await request(app)
       .post("/api/users/login")
       .send({
-        email: "dummyUser@gmail.com",
-        password: "dummyUser",
+        email: userEmail,
+        password: userPassword,
+      })
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json");
+
+    const userId = loginUser.body.user.id;
+
+    const res = await request(app).delete(`/api/users/${userId}`);
+
+    expect(res.statusCode).toBe(204);
+  });
+
+  it("should delete a user and return status code 204".blue, async () => {
+    const userEmail = "dummyUser2@gmail.com";
+    const userPassword = "dummyUser";
+    const loginUser = await request(app)
+      .post("/api/users/login")
+      .send({
+        email: userEmail,
+        password: userPassword,
+      })
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json");
+
+    const userId = loginUser.body.user.id;
+
+    const res = await request(app).delete(`/api/users/${userId}`);
+
+    expect(res.statusCode).toBe(204);
+  });
+
+  it("should delete a user and return status code 204".blue, async () => {
+    const userEmail = "dummyUser3@gmail.com";
+    const userPassword = "dummyUser";
+    const loginUser = await request(app)
+      .post("/api/users/login")
+      .send({
+        email: userEmail,
+        password: userPassword,
       })
       .set("Content-Type", "application/json")
       .set("Accept", "application/json");
