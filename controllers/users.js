@@ -26,12 +26,10 @@ const registerUser = async (req, res, next) => {
     await newUser.save();
     res.status(201).json({
       message: "User created",
-      data: {
         user: {
           email,
           subscription: "starter",
         },
-      },
     });
   } catch (e) {
     next(e);
