@@ -115,8 +115,6 @@ describe("test routes".yellow, () => {
         .set("Content-Type", "application/json")
         .set("Accept", "application/json");
 
-      console.log(res.body);
-
       expect(res.body.message).toBe("User already exists");
     }
   );
