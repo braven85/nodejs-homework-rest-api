@@ -53,5 +53,7 @@ router.patch(
   usersController.updateAvatar
 );
 router.delete("/users/:userId", usersController.removeUser);
+router.get("/users/verify/:verificationToken", usersController.verifyUser);
+router.post("/users/verify/", usersController.resendVerificationMail);
 
 module.exports = router;

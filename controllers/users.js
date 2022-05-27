@@ -5,11 +5,14 @@ const { userSchema } = require("../joi");
 const gravatar = require("gravatar");
 const jimp = require("jimp");
 const fs = require("fs");
+const { v4: uuidv4 } = require("uuid");
+const { sendMail } = require("../sendgrid");
 
 const registerUser = async (req, res, next) => {
   const { email, password } = req.body;
   const { error } = userSchema.validate({ email, password });
   const avatarURL = gravatar.url(email);
+  const verificationToken = uuidv4();
 
   if (error) {
     return res.status(400).json({ message: error.message });
@@ -21,15 +24,16 @@ const registerUser = async (req, res, next) => {
   }
 
   try {
-    const newUser = new User({ email, avatarURL });
+    const newUser = new User({ email, avatarURL, verificationToken });
     await newUser.setPassword(password);
     await newUser.save();
+    sendMail(email, verificationToken);
     res.status(201).json({
       message: "User created",
-        user: {
-          email,
-          subscription: "starter",
-        },
+      user: {
+        email,
+        subscription: "starter",
+      },
     });
   } catch (e) {
     next(e);
@@ -40,32 +44,32 @@ const loginUser = async (req, res, next) => {
   const { email, password } = req.body;
   const { error } = userSchema.validate({ email, password });
 
-  if (!error) {
-    const user = await User.findOne({ email });
-    const isPasswordCorrect = await user.validatePassword(password);
-
-    if (!user || !isPasswordCorrect) {
-      return res.status(401).json({ message: "wrong credentials" });
-    }
-
-    const payload = {
-      id: user._id,
-      email: user.email,
-    };
-
-    const token = jwt.sign(payload, process.env.SECRET, { expiresIn: "1h" });
-
-    res.status(200).json({
-      token,
-      user: {
-        email,
-        subscription: user.subscription,
-        id: user._id,
-      },
-    });
-  } else {
+  if (error) {
     return res.status(400).json({ message: error.message });
   }
+
+  const user = await User.findOne({ email });
+  const isPasswordCorrect = await user.validatePassword(password);
+
+  if (!user || !isPasswordCorrect) {
+    return res.status(401).json({ message: "wrong credentials" });
+  }
+
+  const payload = {
+    id: user._id,
+    email: user.email,
+  };
+
+  const token = jwt.sign(payload, process.env.SECRET, { expiresIn: "1h" });
+
+  res.status(200).json({
+    token,
+    user: {
+      email,
+      subscription: user.subscription,
+      id: user._id,
+    },
+  });
 };
 
 const currentUser = async (req, res, next) => {
@@ -146,6 +150,55 @@ const removeUser = async (req, res, next) => {
   }
 };
 
+const verifyUser = async (req, res, next) => {
+  const { verificationToken } = req.params;
+  try {
+    const result = await service.updateVerificationToken(verificationToken);
+    if (result) {
+      res.status(200).json({
+        message: "Verification successful",
+      });
+    } else {
+      res.status(404).json({
+        message: `User not found`,
+      });
+    }
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
+};
+
+const resendVerificationMail = async (req, res, next) => {
+  const { email } = req.body;
+  const { error } = userSchema.validate({ email });
+
+  if (error) {
+    return res.status(400).json({ message: error.message });
+  }
+
+  try {
+    const user = await User.findOne({ email }).lean();
+    if (!user) {
+      res.status(404).json({
+        message: `User not found`,
+      });
+    } else if (!user.verify) {
+      sendMail(email, user.verificationToken);
+      res.status(200).json({
+        message: "Verification email sent",
+      });
+    } else {
+      res.status(400).json({
+        message: "Verification has already been passed",
+      });
+    }
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -154,4 +207,6 @@ module.exports = {
   updateAvatar,
   listAllUsers,
   removeUser,
+  verifyUser,
+  resendVerificationMail,
 };

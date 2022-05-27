@@ -35,6 +35,12 @@ const updateUserAvatar = (_id, avatarURL) =>
 
 const removeUser = (userId) => User.deleteOne({ _id: userId });
 
+const updateVerificationToken = (verificationToken) =>
+  User.findOneAndUpdate(
+    { verificationToken },
+    { verify: true, verificationToken: null }
+  );
+
 module.exports = {
   getAllContacts,
   getSingleContact,
@@ -45,4 +51,5 @@ module.exports = {
   updateUserJWT,
   updateUserAvatar,
   removeUser,
+  updateVerificationToken,
 };
