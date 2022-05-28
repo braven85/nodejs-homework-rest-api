@@ -1,13 +1,25 @@
 const service = require("../service");
 const { postSchema } = require("../joi");
 
-const get = async (req, res, next) => {
-  try {
-    const contacts = await service.getAllContacts();
-    res.json(contacts);
-  } catch (err) {
-    console.error(err);
-    next(err);
+const getAll = async (req, res, next) => {
+  const { _id } = req.user;
+  const fav = req.query.favorite;
+  if (fav) {
+    try {
+      const results = await service.getFavContacts(fav, _id);
+      res.status(200).json({ contacts: results });
+    } catch (e) {
+      console.error(e);
+      next(e);
+    }
+  } else {
+    try {
+      const results = await service.getAllContacts(_id);
+      res.status(200).json({ contacts: results });
+    } catch (e) {
+      console.error(e);
+      next(e);
+    }
   }
 };
 
@@ -28,10 +40,11 @@ const getOne = async (req, res, next) => {
 
 const addContact = async (req, res, next) => {
   const { name, email, phone } = req.body;
+  const { _id } = req.user;
   const { error } = postSchema.validate({ name, email, phone });
   if (!error) {
     try {
-      const result = await service.createContact({ name, email, phone });
+      const result = await service.createContact({ name, email, phone, _id });
       res.status(201).json({ message: "Contact was created", contact: result });
     } catch (err) {
       console.error(err);
@@ -93,7 +106,7 @@ const patchIsFavorite = async (req, res, next) => {
 };
 
 module.exports = {
-  get,
+  getAll,
   getOne,
   addContact,
   removeContact,

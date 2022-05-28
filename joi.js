@@ -12,4 +12,9 @@ const postSchema = Joi.object({
 //   phone: Joi.number(),
 // });
 
-module.exports = { postSchema };
+const userSchema = Joi.object({
+  email: Joi.string().email(),
+  password: Joi.string(),
+});
+
+module.exports = { postSchema, userSchema };
