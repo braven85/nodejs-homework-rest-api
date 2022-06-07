@@ -27,7 +27,13 @@ const registerUser = async (req, res, next) => {
     const newUser = new User({ email, avatarURL, verificationToken });
     await newUser.setPassword(password);
     await newUser.save();
-    sendMail(email, verificationToken);
+    await sendMail(email, verificationToken)
+      .then(() => {
+        console.log("Verification email sent");
+      })
+      .catch((e) => {
+        console.log(e);
+      });
     res.status(201).json({
       message: "User created",
       user: {
@@ -184,7 +190,13 @@ const resendVerificationMail = async (req, res, next) => {
         message: `User not found`,
       });
     } else if (!user.verify) {
-      sendMail(email, user.verificationToken);
+      await sendMail(email, user.verificationToken)
+        .then(() => {
+          console.log("Verification email resent");
+        })
+        .catch((e) => {
+          console.log(e);
+        });
       res.status(200).json({
         message: "Verification email sent",
       });
